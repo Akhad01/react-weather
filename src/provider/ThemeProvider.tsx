@@ -1,28 +1,34 @@
 import { useState } from "react"
-import { ThemeContext } from "../context/ThemeContext"
+import { Theme, ThemeContext } from "../context/ThemeContext"
+import { changeCssRootVariables } from "../model/ChangeCssRootVariables"
+import { storage } from "../model/Storage"
 
 type Props = {
     children: React.ReactNode,
 }
 
-const ThemeProvider = ({children, ...props}: Props) => {
-    const [theme, setTheme] = useState<string>("light")
+export const ThemeProvider = ({children, ...props}: Props) => {
+    const [theme, setTheme] = useState<Theme>(storage.getItem("theme") || Theme.LIGHT)
 
-    function changeTheme(theme: string) {
+    changeCssRootVariables(theme)
+
+    function changeTheme(theme: Theme) {
+        storage.setItem("theme", theme)
         setTheme(theme)
+        changeCssRootVariables(theme)
     }
 
-  return (
-    <ThemeContext.Provider 
-        value={{
-            theme,
-            changeTheme,
-        }}
-        {...props}
-    >
-        {children}
-    </ThemeContext.Provider>
-  )
+    return (
+        <ThemeContext.Provider 
+            value={{
+                theme,
+                changeTheme,
+            }}
+            {...props}
+        >
+            {children}
+        </ThemeContext.Provider>
+    )
 }
 
 export default ThemeProvider
